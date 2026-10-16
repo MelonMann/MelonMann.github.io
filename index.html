@@ -88,8 +88,12 @@
   .bio-cell:nth-child(odd) { border-right:1px solid #bdc8d3; }
   .bio-cell b { display:block; color:#1e4b73; margin-bottom:3px; }
   .bio-cell p { margin:0; }
-  .music-bar { margin:10px 11px 11px; padding:8px; border:1px inset #b7c5d2; background:repeating-linear-gradient(90deg,#d3dce5 0 8px,#e1e7ed 8px 16px); color:#293c52; font-size:11px; }
+  .music-bar { margin:10px 11px 11px; padding:8px; border:1px inset #b7c5d2; background:repeating-linear-gradient(90deg,#d3dce5 0 8px,#e1e7ed 8px 16px); color:#293c52; font-size:11px; line-height:1.8; }
   .music-bar .playing { color:#0879b9; font-weight:bold; }
+  .music-status { color:#536e87; font-size:10px; white-space:nowrap; }
+  .music-button { display:inline-block; margin:3px 3px 3px 6px; padding:4px 8px; border:2px outset #b8cadb; background:linear-gradient(#f3f9ff,#a4c0d7); color:#112a40; font: bold 10px var(--comic); cursor:pointer; }
+  .music-button:hover { background:linear-gradient(#f7fdff,#67d8ff); }
+  .music-button[hidden] { display:none; }
   .chat-window { background:#e3e9ef; padding:10px; }
   .chat-toolbar { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; font-size:12px; border-bottom:1px dotted #8598ab; padding:0 1px 9px; margin-bottom:10px; }
   .delivered { color:#276b44; font-weight:bold; white-space:nowrap; }
@@ -162,7 +166,7 @@
       <div class="side-inner sidebar-layout">
         <div class="avatar-block">
           <div class="avatar-wrap" aria-label="profile picture"><img src="image.jpg" alt="erikvolt profile picture" width="512" height="512"></div>
-          <div class="avatar-caption">image.jpg // 512×512 profile image</div>
+          <div class="avatar-caption">sup</div>
         </div>
         <div class="status"><b>mood:</b> chill<br><b>status:</b> online <span class="green-dot">●</span><br><b>listening to:</b> alt rock ♫<br><b>location:</b> swfl</div>
         <div>
@@ -187,7 +191,7 @@
           <div class="bio-cell"><b>what i'm doing</b><p>gaming, playing with friends, messing with old hardware.</p></div>
           <div class="bio-cell"><b>looking for</b><p>cool people, cool tech, music recommendations.</p></div>
         </div>
-        <div class="music-bar"><span class="playing">▶ NOW PLAYING:</span> <b>Three Days Grace - Animal I Have Become [128kbps].mp3</b> &nbsp; ━━━━━━━━━━━━━━━○━━ &nbsp; <span>0:46 / 3:51</span></div>
+        <div class="music-bar"><span class="playing">♫ NOW PLAYING:</span> <b>Three Days Grace - Animal I Have Become [128kbps].mp3</b> &nbsp; <span id="music-status" class="music-status" aria-live="polite">starting music...</span><button class="music-button" id="music-toggle" type="button" hidden>▶ play music</button></div>
       </section>
 
       <section class="panel" id="message">
@@ -203,7 +207,7 @@
                 <p>yo!! here's all my stuff in one place lol. hit the link and come say hi ⚡</p>
                 <div class="link-card" id="links">
                   <div class="link-icon">↗</div>
-                  <div class="link-meta"><b>erikvolt's links</b><small>linktr.ee/erikvolt</small><a class="visit-link" href="https://linktr.ee/erikvolt" target="_blank" rel="noopener noreferrer">↗ check out my linktree</a></div>
+                  <div class="link-meta"><b>erikvolt's links</b><small>linktr.ee/yourusername</small><a class="visit-link" href="https://linktr.ee/yourusername" target="_blank" rel="noopener noreferrer">↗ check out my linktree</a></div>
                 </div>
               </div>
             </div>
@@ -216,5 +220,56 @@
   <div class="marquee"><span>⚡ welcome to erikvolt ⚡ old websites forever ★ keep the web cool ★ sup dog! ★ check out my linktree ⚡ see ya later! ★ </span></div>
   <footer class="footer">made on the github with old chatroom gui, music!, and a little nostalgia · © erikvolt</footer>
 </div>
+<audio id="profile-music" src="music.mp3" autoplay loop preload="auto"></audio>
+<script>
+  // Browsers may block audible autoplay. Try on load and show a play button if needed.
+  (() => {
+    const audio = document.getElementById('profile-music');
+    const toggle = document.getElementById('music-toggle');
+    const status = document.getElementById('music-status');
+
+    audio.volume = 0.34;
+
+    function updatePlayer(isPlaying) {
+      toggle.hidden = false;
+      toggle.textContent = isPlaying ? 'Ⅱ pause music' : '▶ play music';
+      status.textContent = isPlaying ? '♫ playing / loop' : 'paused';
+    }
+
+    async function startMusic() {
+      try {
+        await audio.play();
+        updatePlayer(true);
+      } catch (error) {
+        toggle.hidden = false;
+        toggle.textContent = '▶ start music';
+        status.textContent = 'autoplay blocked';
+      }
+    }
+
+    toggle.addEventListener('click', async () => {
+      if (audio.paused) {
+        try {
+          await audio.play();
+          updatePlayer(true);
+        } catch (error) {
+          status.textContent = 'could not play music';
+        }
+      } else {
+        audio.pause();
+        updatePlayer(false);
+      }
+    });
+
+    audio.addEventListener('error', () => {
+      status.textContent = 'keep music.mp3 beside index.html';
+      toggle.hidden = true;
+    });
+
+    audio.addEventListener('play', () => updatePlayer(true));
+    audio.addEventListener('pause', () => updatePlayer(false));
+    startMusic();
+  })();
+</script>
 </body>
 </html>
